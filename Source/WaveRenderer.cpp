@@ -132,5 +132,9 @@ std::string CWaveRendererRow::GetProgressString() const {
 }
 
 int CWaveRendererRow::GetProgressPercent() const {
-	return Finished() ? 100 : m_iRenderRow * 100 / m_iRowsToRender;
+	const auto maxProgress = 100;
+	if (m_iRowsToRender == 0)
+		return maxProgress;
+
+	return Finished() ? maxProgress : m_iRenderRow * maxProgress / m_iRowsToRender;
 }

@@ -214,6 +214,7 @@
 #define IDD_TRANSPOSE                   337
 #define IDD_FINDRESULTS                 343
 #define IDD_SPLIT_KEYBOARD              345
+#define IDD_INDIVIDUAL_WAVE_PROGRESS    361
 #define IDC_INSTRUMENTS                 1001
 #define IDC_INSTSETTINGS                1002
 #define IDC_IMPORT_DETUNE               1002
@@ -327,6 +328,8 @@
 #define IDC_KEY_NOTE_RELEASE            1155
 #define IDC_SECONDS                     1156
 #define IDC_KEY_CLEAR                   1156
+#define IDC_PROGRESS_BAR2               1156
+#define IDC_SAVE_INDIVIDUAL             1157
 #define IDC_KEY_REPEAT                  1157
 #define IDC_BEGIN                       1159
 #define IDC_CANCEL                      1160
@@ -755,7 +758,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        358
+#define _APS_NEXT_RESOURCE_VALUE        362
 #define _APS_NEXT_COMMAND_VALUE         33202
 #define _APS_NEXT_CONTROL_VALUE         1460
 #define _APS_NEXT_SYMED_VALUE           179

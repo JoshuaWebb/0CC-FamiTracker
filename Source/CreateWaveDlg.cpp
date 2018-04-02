@@ -36,6 +36,7 @@
 #include "WaveRendererFactory.h"		// // //
 #include "ChannelName.h"		// // //
 #include "str_conv/str_conv.hpp"		// // //
+#include "IndividualWavProgressDlg.h"
 
 const int MAX_LOOP_TIMES = 99;
 const int MAX_PLAY_TIME	 = (99 * 60) + 0;
@@ -119,32 +120,60 @@ void CCreateWaveDlg::OnBnClickedBegin()
 	if (!path)
 		return;
 
-	auto pRenderer = [&] () -> std::unique_ptr<CWaveRenderer> {		// // //
+	const auto rendererFactory = [&]() -> std::unique_ptr<CWaveRenderer>
+	{
+		std::unique_ptr<CWaveRenderer> newRenderer = nullptr;
 		if (IsDlgButtonChecked(IDC_RADIO_LOOP))
-			return CWaveRendererFactory::Make(*pModule, Track, render_type_t::Loops, GetFrameLoopCount());
-		if (IsDlgButtonChecked(IDC_RADIO_TIME))
-			return CWaveRendererFactory::Make(*pModule, Track, render_type_t::Seconds, GetTimeLimit());
-		return nullptr;
-	}();
-	if (!pRenderer) {
-		AfxMessageBox(L"Unable to create wave renderer!", MB_ICONERROR);
-		return;
+			newRenderer = CWaveRendererFactory::Make(*pModule, Track, render_type_t::Loops, GetFrameLoopCount());
+		else if (IsDlgButtonChecked(IDC_RADIO_TIME))
+			newRenderer = CWaveRendererFactory::Make(*pModule, Track, render_type_t::Seconds, GetTimeLimit());
+
+		if (newRenderer)
+			newRenderer->SetRenderTrack(Track);
+
+		return newRenderer;
+	};
+
+	const bool saveIndividual = IsDlgButtonChecked(IDC_SAVE_INDIVIDUAL);
+	if (saveIndividual) {
+		std::vector<channel_to_render> channelsToRender;
+
+		for (int i = 0; i < m_ctlChannelList.GetCount(); ++i) {
+			if (m_ctlChannelList.GetCheck(i) == BST_UNCHECKED)
+				continue;
+
+			const auto channelId = pModule->GetChannelOrder().TranslateChannel(i);
+			auto channelName = conv::to_wide(GetChannelFullName(channelId));
+			for (auto& ch : channelName)
+				if (ch == ' ')
+					ch = '_';
+
+			auto lastDot = path->ReverseFind('.');
+			CString channelPath;
+			channelPath.Format(L"%s.%s.wav", path->Left(lastDot).GetString(), channelName.data());
+
+			channelsToRender.emplace_back(channelId, channelPath);
+		}
+
+		// Show the render progress dialog, this will also start rendering
+		CIndividualWavProgressDlg ProgressDlg;
+		ProgressDlg.BeginRender(rendererFactory, channelsToRender);		// // //
+	} else {
+		// Mute selected channels
+		pView->UnmuteAllChannels();
+		for (int i = 0; i < m_ctlChannelList.GetCount(); ++i)
+			if (m_ctlChannelList.GetCheck(i) == BST_UNCHECKED)
+				pView->ToggleChannel(pModule->GetChannelOrder().TranslateChannel(i));
+
+		auto pRenderer = rendererFactory();
+		CWavProgressDlg ProgressDlg;
+		ProgressDlg.BeginRender(*path, std::move(pRenderer));           // // //
 	}
-	pRenderer->SetRenderTrack(Track);
-
-	// Mute selected channels
-	pView->UnmuteAllChannels();
-	for (int i = 0; i < m_ctlChannelList.GetCount(); ++i)
-		if (m_ctlChannelList.GetCheck(i) == BST_UNCHECKED)
-			pView->ToggleChannel(pModule->GetChannelOrder().TranslateChannel(i));
-
-	// Show the render progress dialog, this will also start rendering
-	CWavProgressDlg ProgressDlg;
-	ProgressDlg.BeginRender(*path, std::move(pRenderer));		// // //
 
 	// Unmute all channels
 	pView->UnmuteAllChannels();
 }
+
 
 BOOL CCreateWaveDlg::OnInitDialog()
 {

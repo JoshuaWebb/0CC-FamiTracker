@@ -837,6 +837,9 @@
     <ClCompile Include="Source\GraphEditorFactory.cpp">
       <Filter>Source Files\Dialog Boxes\Instrument\Related\Sequence editor</Filter>
     </ClCompile>
+    <ClCompile Include="Source\IndividualWavProgressDlg.cpp">
+      <Filter>Source Files\Dialog Boxes\Wave export</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Exception.h">
@@ -1570,6 +1573,9 @@
     </ClInclude>
     <ClInclude Include="Source\GraphEditorFactory.h">
       <Filter>Header Files\Dialog Boxes Headers\Instrument Headers\Related Headers\Sequence editor Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\IndividualWavProgressDlg.h">
+      <Filter>Header Files\Dialog Boxes Headers\Wave Export Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
